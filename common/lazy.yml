@@ -1,0 +1,35 @@
+- name: Get latest Lazygit release version
+  get_url:
+    url: "https://api.github.com/repos/jesseduffield/lazygit/releases/latest"
+    dest: "/tmp/lazygit_release.json"
+  tags:
+    - lazygit
+
+- name: Extract Lazygit version from release JSON
+  set_fact:
+    lazygit_version: "{{ lookup('file', '/tmp/lazygit_release.json') | from_json | json_query('tag_name') | regex_replace('^v', '') }}"
+  tags:
+    - lazygit
+
+- name: Download Lazygit release
+  get_url:
+    url: "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz"
+    dest: "/tmp/lazygit.tar.gz"
+  tags:
+    - lazygit
+
+- name: Extract Lazygit archive
+  command: tar xf /tmp/lazygit.tar.gz lazygit
+  tags:
+    - lazygit
+
+- name: Install Lazygit
+  become: true
+  command: install lazygit /usr/local/bin
+  tags:
+    - lazygit
+
+- name: Remove extracted file
+  file:
+    path: ./lazygit
+    state: absent

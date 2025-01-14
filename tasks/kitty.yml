@@ -1,0 +1,14 @@
+- name: "Download Kitty installer script"
+  get_url:
+    url: https://sw.kovidgoyal.net/kitty/installer.sh
+    dest: /tmp/installer.sh
+    mode: "0755"
+
+- name: "Run Kitty installer script"
+  command: /tmp/installer.sh
+  args:
+    creates: /usr/local/bin/kitty
+
+- name: "Remove downloaded installer script"
+  file:
+    

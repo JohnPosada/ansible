@@ -1,0 +1,31 @@
+- name: "Add Flathub remote repository"
+  shell: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  tags:
+    - flatpak
+
+- name: "Install spotify client"
+  flatpak:
+    name: https://dl.flathub.org/repo/appstream/com.spotify.Client.flatpakref
+    method: user
+    state: present
+
+- name: "Install dbeaver client"
+  flatpak:
+    name: https://dl.flathub.org/repo/appstream/io.dbeaver.DBeaverCommunity.flatpakref
+    method: user
+    state: present
+
+- name: "Install obs studio"
+  flatpak:
+    name: https://dl.flathub.org/repo/appstream/com.obsproject.Studio.flatpakref
+    method: user
+    state: present
+
+- name: "Install slack client"
+  flatpak:
+    name: https://dl.flathub.org/repo/appstream/com.slack.Slack.flatpakref
+    method: user
+    state: present
+
+
+

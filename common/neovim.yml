@@ -1,0 +1,25 @@
+- name: "Download Rustup installation script if not installed"
+  get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup_install.sh
+    mode: '0755'
+  when: ansible_facts['user_shell'] == '/bin/bash' and not lookup('file', lookup('env', 'HOME') + '/.cargo/bin/rustup')
+
+
+- name: "Run Rustup installer if not installed"
+  command: /tmp/rustup_install.sh -y
+  args:
+    creates: "{{ lookup('env', 'HOME') }}/.cargo/bin/rustup"
+ 
+
+- name: "Install latest Neovim version with bob"
+  shell:
+    cmd: |
+      source {{ lookup('env', 'HOME') }}/.cargo/env
+      cargo install bob-nvim
+      bob install latest
+      bob use latest
+    executable: /bin/bash
+  environment:
+    PATH: "{{ lookup('env', 'PATH') }}:{{ lookup('env', 'HOME') }}/.cargo/bin"
+ 

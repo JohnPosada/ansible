@@ -1,0 +1,52 @@
+- name: "Download Google Chrome .deb package"
+  get_url:
+    url: "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+    dest: "/tmp/google-chrome-stable_current_amd64.deb"
+  tags:
+    - chrome
+
+- name: "Install Google Chrome"
+  apt:
+    deb: "/tmp/google-chrome-stable_current_amd64.deb"
+  tags:
+    - chrome
+
+- name: "Ensure Google Chrome is up to date"
+  apt:
+    name: google-chrome-stable
+    state: latest
+  tags:
+    - chrome
+
+- name: "Get the latest Microsoft Edge version"
+  set_fact:
+    edge_version: "{{ lookup('pipe', \"curl -s https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/ | grep -oP 'microsoft-edge-stable_\\K[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+' | sort -V | tail -n 1\") }}"
+
+- name: "Download Microsoft Edge .deb package"
+  get_url:
+    url: "https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/microsoft-edge-stable_{{ edge_version }}_amd64.deb"
+    dest: /tmp/microsoft-edge-stable.deb
+
+- name: "Install Microsoft Edge using apt"
+  apt:
+    deb: /tmp/microsoft-edge-stable.deb
+    state: present
+
+
+- name: "Download Discord .deb package"
+  get_url:
+    url: "https://discord.com/api/download?platform=linux&format=deb"
+    dest: "/tmp/discord.deb"
+
+- name: "Install Discord"
+  apt:
+    deb: "/tmp/discord.deb"
+
+ - name: "Remove downloaded .deb packages"
+      file:
+        path: "/tmp/{{ item }}"
+        state: absent
+      loop:
+        - google-chrome-stable_current_amd64.deb
+        - discord.deb
+        - microsoft-edge-stable.deb

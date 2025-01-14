@@ -1,0 +1,13 @@
+- hosts: localhost
+  vars:
+    deb_architecture: { "aarch64": "arm64", "x86_64": "amd64" }
+  pre_tasks:
+    - name: Update Apt
+      become: true
+      apt:
+        force_apt_get: true
+        update_cache: true
+        state: present
+  tasks:
+    - include_tasks: tasks/debs.yml
+    

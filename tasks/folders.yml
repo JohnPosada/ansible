@@ -1,0 +1,6 @@
+- name: Create my folders
+  shell: |
+    [ ! -d {{home}}/.local/bin ] && mkdir -p {{ home }}/.local/bin &>/dev/null
+
+  tags:
+    - always

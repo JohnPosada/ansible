@@ -1,14 +1,19 @@
-- name: Crear la carpeta de fuentes para el usuario
-  file:
-    path: ~/.local/share/fonts
-    state: directory
-    mode: '0755'
+- name: "Install fonts"
+  block:
+  - name: Crear la carpeta de fuentes para el usuario
+    file:
+      path: ~/.local/share/fonts
+      state: directory
+      mode: '0755'
 
-- name: Copiar las fuentes personalizadas
-  copy:
-    src: fonts/.fonts
-    dest: ~/.local/share/fonts/
-    mode: '0644'
+  - name: Copiar las fuentes personalizadas
+    copy:
+      src: fonts/.fonts
+      dest: ~/.local/share/fonts/
+      mode: '0644'
 
-- name: Actualizar la caché de fuentes
-  command: fc-cache -fv
+  - name: Actualizar la caché de fuentes
+    command: fc-cache -fv
+  tags:
+    - fonts
+    - install

@@ -1,17 +1,18 @@
-- name: "Download fnm installation script"
-  get_url:
-    url: https://fnm.vercel.app/install
-    dest: /tmp/fnm_install.sh
-    mode: "0755"
-  tags:
-    - node
+- name: "Install fnm with node version"
+  block:
+  - name: "Download fnm installation script"
+    get_url:
+      url: https://fnm.vercel.app/install
+      dest: /tmp/fnm_install.sh
+      mode: "0755"
 
-- name: "Execute fnm installation script"
-  shell: |
-    /tmp/fnm_install.sh
-    fnm install lts/hydrogen
-    fnm default lts/hydrogen
-  args:
-    executable: /bin/zsh
+  - name: "Execute fnm installation script"
+    shell: |
+      /tmp/fnm_install.sh
+      $HOME/.local/share/fnm/fnm install lts/hydrogen
+      $HOME/.local/share/fnm/fnm default lts/hydrogen
+    args:
+      executable: /bin/zsh
   tags:
     - node
+    - install

@@ -2,3 +2,6 @@
   community.general.npm:
     name: "yarn"
     global: true
+    tags:
+      - npm
+      - install

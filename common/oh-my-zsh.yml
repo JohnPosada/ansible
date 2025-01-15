@@ -1,0 +1,36 @@
+- name : "Install Oh My Zsh and plugins"
+  block:
+  - name: "Download Oh My Zsh install script"
+    get_url:
+      url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+      dest: /tmp/install_ohmyzsh.sh
+      mode: "0755"
+    
+
+  - name: "Execute Oh My Zsh install script"
+    command:
+      cmd: sh -c "/tmp/install_ohmyzsh.sh"
+    
+
+  - name: Clone zsh-syntax-highlighting plugin
+    git:
+      repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+      dest: "{{ zsh_custom }}/plugins/zsh-syntax-highlighting"
+    
+
+  - name: Clone fzf-zsh-plugin plugin
+    git:
+      repo: https://github.com/unixorn/fzf-zsh-plugin.git
+      dest: "{{ zsh_custom }}/plugins/fzf-zsh-plugin"
+      depth: 1
+    
+
+  - name: Clone forgit plugin
+    git:
+      repo: https://github.com/wfxr/forgit.git
+      dest: "{{ zsh_custom }}/plugins/forgit"
+    
+  tags:
+    - zsh
+    - oh-my-zsh
+    - install

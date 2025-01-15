@@ -1,40 +1,41 @@
-- name: Update apt cache
-  become: true
-  apt:
-    update_cache: yes
+- name: install apt packages
+  block:
+  - name: "Install system packages"
+    become: true
+    apt:
+      name:
+        [
+          "unzip",
+          "tree",
+          "fzf",
+          "fd-find",
+          "ripgrep",
+          "copyq",
+          "xclip",
+          "direnv",
+          "feh",
+          "stow",
+          "flameshot",
+          "apt-show-versions",
+          "git-extras",
+          "bat",
+          "tmux",
+          "cpu-checker",
+          "xbindkeys",
+          "gnome-tweaks", 
+          "bashtop",
+          "git-filter-repo",
+          "gimp",
+          "python3-pip",
+        ]
+      state: present
+
+  - name: "Install docker required packages"
+    become: true
+    apt:
+      name: ["ca-certificates", "curl", "gnupg"]
+      state: present
+    
   tags:
-    - core-packages
-
-- name: "Install system packages"
-  become: true
-  apt:
-    name:
-      [
-        "unzip",
-        "tree",
-        "ripgrep",
-        "copyq",
-        "xclip",
-        "direnv",
-        "feh",
-        "stow",
-        "flameshot",
-        "apt-show-versions",
-        "git-extras",
-        "bat",
-        "tmux",
-        "cpu-checker",
-        "xbindkeys",
-        "gnome-tweaks", 
-        "bashtop",
-        "git-filter-repo",
-        "gimp",
-        "python3-pip",
-      ]
-    state: present
-
-- name: "Install docker required packages"
-  become: true
-  apt:
-    name: ["ca-certificates", "curl", "gnupg"]
-    state: present
+    - apt
+    - install

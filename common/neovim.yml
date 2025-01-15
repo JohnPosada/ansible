@@ -1,25 +1,44 @@
-- name: "Download Rustup installation script if not installed"
-  get_url:
-    url: https://sh.rustup.rs
-    dest: /tmp/rustup_install.sh
-    mode: '0755'
-  when: ansible_facts['user_shell'] == '/bin/bash' and not lookup('file', lookup('env', 'HOME') + '/.cargo/bin/rustup')
+- name: install bob for neovim versioning
+  block:
+  - name: get latest {{repo}} tag
+    community.general.github_release:
+      user: "{{author}}"
+      repo: "{{repo}}"
+      action: latest_release
+    register: bob_release
 
+  - name: Unarchive {{repo}}
+    unarchive:
+      src: "{{download_url}}/{{ bob_release['tag'] }}/{{prefix}}.{{extension}} "
+      dest: "/tmp"
+      remote_src: true
 
-- name: "Run Rustup installer if not installed"
-  command: /tmp/rustup_install.sh -y
-  args:
-    creates: "{{ lookup('env', 'HOME') }}/.cargo/bin/rustup"
- 
+  - name: "copy {{repo}} to {{bin}}"
+    copy:
+      src: "/tmp/{{prefix}}/{{repo}}"
+      dest: "{{ bin }}"
 
-- name: "Install latest Neovim version with bob"
-  shell:
-    cmd: |
-      source {{ lookup('env', 'HOME') }}/.cargo/env
-      cargo install bob-nvim
-      bob install latest
-      bob use latest
-    executable: /bin/bash
-  environment:
-    PATH: "{{ lookup('env', 'PATH') }}:{{ lookup('env', 'HOME') }}/.cargo/bin"
- 
+  - name: "make executable"
+    file:
+      path: "{{ bin }}/{{repo}}"
+      mode: 0755
+
+  - name: "get latest neovim version"
+    shell: "{{ home }}/.local/bin/bob use latest"
+
+  - name: "create root neovim symlink"
+    become: true
+    file:
+      src: "{{home}}/.local/share/bob/nvim-bin/nvim"
+      dest: "/usr/local/bin/nvim"
+      state: link
+
+  vars:
+    author: MordechaiHadad
+    repo: bob
+    prefix: bob-linux-x86_64
+    extension: zip
+    download_url: https://github.com/{{author}}/{{repo}}/releases/download
+  tags:
+    - neovim
+    - install

@@ -1,6 +1,10 @@
 - hosts: localhost
   vars:
     deb_architecture: { "aarch64": "arm64", "x86_64": "amd64" }
+    home: "{{ ansible_env.HOME }}"
+    user: "{{ lookup('env', 'USER') }}"
+    bin: "{{ home }}/.local/bin"
+    zsh_custom : "{{ home }}/.oh-my-zsh"
   pre_tasks:
     - name: Update Apt
       become: true
@@ -9,5 +13,17 @@
         update_cache: true
         state: present
   tasks:
-    - include_tasks: tasks/debs.yml
-    
+    - import_tasks: tasks/folders.yml
+    - import_tasks: tasks/deb.yml
+    - import_tasks: common/fonts.yml
+    - import_tasks: common/neovim.yml 
+    - import_tasks: common/lazy.yml
+    - import_tasks: common/node.yml
+    - import_tasks: tasks/apt.yml
+    - import_tasks: tasks/docker.yml
+    - import_tasks: tasks/flatpak.yml
+    - import_tasks: tasks/kitty.yml
+    - import_tasks: tasks/npm-packages.yml
+    - import_tasks: tasks/zsh.yml
+    - import_tasks: common/oh-my-zsh.yml
+    - import_tasks: tasks/dotfiles.yml

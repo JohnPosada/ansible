@@ -1,14 +1,36 @@
-- name: "Download Kitty installer script"
-  get_url:
-    url: https://sw.kovidgoyal.net/kitty/installer.sh
-    dest: /tmp/installer.sh
-    mode: "0755"
 
-- name: "Run Kitty installer script"
-  command: /tmp/installer.sh
-  args:
-    creates: /usr/local/bin/kitty
+- name: "Install kitty"
+  block:
+  - name: "Descargar e instalar Kitty desde curl"
+    shell: |
+      curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+    args:
+        executable: /bin/bash
+  
+  - name: "Mover el binario de Kitty al sistema"
+    shell: |
+      mkdir -p ~/.local/bin
+      ln -sf ~/.local/kitty.app/bin/kitty ~/.local/bin/
+    args:
+      executable: /bin/bash
+  # - name: "Download Kitty installer script"
+  #   get_url:
+  #     url: https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+  #     dest: /tmp/installer.sh
+  #     mode: "0755"
 
-- name: "Remove downloaded installer script"
-  file:
-    
+
+  # - name: "Run Kitty installer script"
+  #   become: true
+  #   shell: sh /tmp/installer.sh dest="usr/local/bin"
+  #   args:
+  #     executable: /bin/sh
+
+  # - name: "update alternatives"
+  #   become: true
+  #   command: update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator ~/.local/stow 50
+
+  tags:
+    - kitty
+    - terminal
+    - install

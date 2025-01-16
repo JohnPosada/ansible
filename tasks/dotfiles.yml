@@ -6,6 +6,12 @@
         name: stow
         state: present
 
+    - name: "delete conflicting files"
+      shell: |
+        find ~ -type f \( -name ".zshrc" -o -name ".profile" -o -name ".bashrc" \) -exec rm -f {} \;
+      args:
+        executable: /bin/bash
+
     - name: "Clone dotfiles repository"
       git:
         repo: "https://github.com/JohnPosada/dotfiles.git"
@@ -14,17 +20,23 @@
 
     - name: "execute Stow to create symlinks and overwrite files"
       shell: |
-        stow -v --adopt --override=.* {{ item }}
+        stow {{ item }}
       args:
         chdir: "~/dotfiles"
         executable: /bin/bash
       loop: "{{ dotfiles }}"
+    
 
   vars:
     dotfiles:
       - gitconfig
       - zsh
       - nvim
+      - autostart
+      - bash
+      - kitty
+
   tags:
     - dotfiles
+    - terminal
     - install

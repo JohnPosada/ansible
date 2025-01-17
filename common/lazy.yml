@@ -27,6 +27,6 @@
       state: absent
       
   tags:
-    - lazy
+    - lazygit
     - neovim
     - install

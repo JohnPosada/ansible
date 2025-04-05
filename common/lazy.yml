@@ -15,11 +15,13 @@
       dest: "/tmp/lazygit.tar.gz"
     
   - name: Extract Lazygit archive
-    command: tar xf /tmp/lazygit.tar.gz lazygit
+    shell: tar xf lazygit.tar.gz lazygit
+    args:
+      chdir: /tmp
     
   - name: Install Lazygit
     become: true
-    command: install lazygit /usr/local/bin
+    command: install /tmp/lazygit /usr/local/bin
 
   - name: Remove extracted file
     file:

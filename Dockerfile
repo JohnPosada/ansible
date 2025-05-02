@@ -8,6 +8,7 @@ RUN apt update && apt install -y \
     software-properties-common \
     curl \
     ansible \
+    libc6\
     sudo \
     git \
     python3-pip \

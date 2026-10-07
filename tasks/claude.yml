@@ -19,20 +19,20 @@
       include: ["engram"]
       remote_src: true
 
-  - name: "Check for claude-config repository"
+  - name: "Check for personal-data repository"
     stat:
-      path: "{{ home }}/claude-config/sync.sh"
+      path: "{{ home }}/personal-data/claude-code/sync.sh"
     register: claude_config
 
   - name: "Restore Claude config, agents, skills and memories"
-    command: "{{ home }}/claude-config/sync.sh import"
+    command: "{{ home }}/personal-data/claude-code/sync.sh import"
     environment:
       PATH: "{{ bin }}:{{ ansible_env.PATH }}"
     when: claude_config.stat.exists
 
   - name: "Remind to clone claude-config"
     debug:
-      msg: "~/claude-config not found: clone your private repo there and rerun with --tags claude"
+      msg: "~/personal-data not found: clone your private personal-data repo there and rerun with --tags claude"
     when: not claude_config.stat.exists
 
   tags:

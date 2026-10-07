@@ -31,6 +31,7 @@
       src: "{{home}}/.local/share/bob/nvim-bin/nvim"
       dest: "/usr/local/bin/nvim"
       state: link
+      force: true
 
   vars:
     author: MordechaiHadad

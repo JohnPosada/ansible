@@ -6,28 +6,42 @@
         name: stow
         state: present
 
-    - name: "delete conflicting files"
-      shell: |
-        find  ~ -type f  \( -name ".zshrc" -o -name ".profile" -o -name ".bashrc" \) -maxdepth 1 -exec rm -f {} \;
-      args:
-        executable: /bin/bash
-
     - name: "Clone dotfiles repository"
       git:
         repo: "https://github.com/JohnPosada/dotfiles.git"
-        dest: "~/dotfiles"
-        update: yes
+        dest: "{{ dotfiles_dir }}"
+        update: false
 
-    - name: "execute Stow to create symlinks and overwrite files"
+    - name: "Backup files that would conflict with stow"
+      shell: |
+        cd "{{ dotfiles_dir }}/{{ item }}"
+        find . \( -type f -o -type l \) | while read -r f; do
+          rel="${f#./}"
+          target="{{ home }}/$rel"
+          if [ -e "$target" ] || [ -L "$target" ]; then
+            case "$(readlink -f "$target")" in "{{ dotfiles_dir }}/"*) continue ;; esac
+            mkdir -p "{{ dotfiles_backup }}/$(dirname "$rel")"
+            mv "$target" "{{ dotfiles_backup }}/$rel"
+            echo "backed up $target"
+          fi
+        done
+      args:
+        executable: /bin/bash
+      loop: "{{ dotfiles }}"
+      register: dotfiles_backup_result
+      changed_when: dotfiles_backup_result.stdout != ""
+
+    - name: "execute Stow to create symlinks"
       shell: |
         stow {{ item }}
       args:
-        chdir: "~/dotfiles"
+        chdir: "{{ dotfiles_dir }}"
         executable: /bin/bash
       loop: "{{ dotfiles }}"
-    
 
   vars:
+    dotfiles_dir: "{{ home }}/dotfiles"
+    dotfiles_backup: "{{ home }}/.dotfiles-backup/{{ ansible_date_time.iso8601_basic_short }}"
     dotfiles:
       - gitconfig
       - zsh

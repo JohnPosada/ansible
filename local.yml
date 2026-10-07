@@ -12,12 +12,14 @@
         force_apt_get: true
         update_cache: true
         state: present
+      tags: always
 
     - name: Install Ansible module dependencies
       become: true
       apt:
         name: ["python3-debian"]
         state: present
+      tags: always
   tasks:
     - import_tasks: tasks/folders.yml
     - import_tasks: tasks/deb.yml

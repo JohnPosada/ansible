@@ -9,7 +9,7 @@
   - name: "Change shell to zsh"
     become: true
     user:
-      name: "{{ ansible_user_id }}"
+      name: "{{ user }}"
       shell: /bin/zsh
 
   - name: Clone fzf repository

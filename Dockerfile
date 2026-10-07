@@ -12,7 +12,6 @@ RUN apt update && apt install -y \
     git \
     python3-pip \
     unzip \
-    fzf \
     zsh 
 
 # create no root user

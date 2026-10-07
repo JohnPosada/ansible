@@ -1,5 +1,11 @@
 - name: "Install fonts"
   block:
+  - name: "Ensure fontconfig is installed"
+    become: true
+    apt:
+      name: fontconfig
+      state: present
+
   - name: "Create fonts directory"
     file:
       path: ~/.local/share/fonts

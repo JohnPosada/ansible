@@ -12,6 +12,7 @@
           "ripgrep",
           "copyq",
           "xclip",
+          "wl-clipboard",
           "direnv",
           "feh",
           "stow",
@@ -21,21 +22,22 @@
           "bat",
           "tmux",
           "cpu-checker",
-          "xbindkeys",
-          "gnome-tweaks", 
-          "bashtop",
+          "btop",
           "git-filter-repo",
           "gimp",
           "python3-pip",
         ]
       state: present
 
-  - name: "Install docker required packages"
-    become: true
-    apt:
-      name: ["ca-certificates", "curl", "gnupg"]
-      state: present
-    
+  - name: "Link Ubuntu renamed binaries (fdfind -> fd, batcat -> bat)"
+    file:
+      src: "/usr/bin/{{ item.src }}"
+      dest: "{{ bin }}/{{ item.dest }}"
+      state: link
+    loop:
+      - { src: fdfind, dest: fd }
+      - { src: batcat, dest: bat }
+
   tags:
     - apt
     - install

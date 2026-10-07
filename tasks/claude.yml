@@ -1,0 +1,40 @@
+- name: "Install Claude Code and restore its config"
+  block:
+  - name: "Install Claude Code"
+    shell: curl -fsSL https://claude.ai/install.sh | bash
+    args:
+      executable: /bin/bash
+      creates: "{{ bin }}/claude"
+
+  - name: Get latest engram release version
+    uri:
+      url: "https://api.github.com/repos/Gentleman-Programming/engram/releases/latest"
+      return_content: true
+    register: engram_release
+
+  - name: Install engram
+    unarchive:
+      src: "https://github.com/Gentleman-Programming/engram/releases/download/{{ engram_release.json.tag_name }}/engram_{{ engram_release.json.tag_name | regex_replace('^v', '') }}_linux_{{ deb_architecture[ansible_architecture] }}.tar.gz"
+      dest: "{{ bin }}"
+      include: ["engram"]
+      remote_src: true
+
+  - name: "Check for claude-config repository"
+    stat:
+      path: "{{ home }}/claude-config/sync.sh"
+    register: claude_config
+
+  - name: "Restore Claude config, agents, skills and memories"
+    command: "{{ home }}/claude-config/sync.sh import"
+    environment:
+      PATH: "{{ bin }}:{{ ansible_env.PATH }}"
+    when: claude_config.stat.exists
+
+  - name: "Remind to clone claude-config"
+    debug:
+      msg: "~/claude-config not found: clone your private repo there and rerun with --tags claude"
+    when: not claude_config.stat.exists
+
+  tags:
+    - claude
+    - install

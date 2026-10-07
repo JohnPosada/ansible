@@ -35,3 +35,4 @@
     - import_tasks: tasks/zsh.yml
     - import_tasks: common/oh-my-zsh.yml
     - import_tasks: tasks/dotfiles.yml
+    - import_tasks: tasks/claude.yml

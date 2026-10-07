@@ -1,19 +1,29 @@
 - name: install deb packages
   block:
-  - name: "Download Google Chrome .deb package"
+  - name: "Add Google Chrome signing key"
+    become: true
     get_url:
-      url: "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-      dest: "/tmp/google-chrome-stable_current_amd64.deb"
+      url: "https://dl.google.com/linux/linux_signing_key.pub"
+      dest: "/etc/apt/keyrings/google-chrome.asc"
+      mode: "0644"
+
+  - name: "Add Google Chrome repository"
+    become: true
+    deb822_repository:
+      name: google-chrome
+      types: deb
+      uris: "https://dl.google.com/linux/chrome/deb/"
+      suites: stable
+      components: main
+      architectures: amd64
+      signed_by: /etc/apt/keyrings/google-chrome.asc
 
   - name: "Install Google Chrome"
     become: true
     apt:
-      deb: "/tmp/google-chrome-stable_current_amd64.deb"
-
-  - name: "Ensure Google Chrome is up to date"
-    apt:
       name: google-chrome-stable
       state: latest
+      update_cache: true
 
   - name: "Download Discord .deb package"
     get_url:
@@ -27,11 +37,8 @@
 
   - name: "Remove downloaded .deb packages"
     file:
-      path: "/tmp/{{ item }}"
+      path: "/tmp/discord.deb"
       state: absent
-    loop:
-      - google-chrome-stable_current_amd64.deb
-      - discord.deb
 
   tags:
     - deb

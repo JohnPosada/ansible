@@ -1,31 +1,35 @@
 - name: "Install Lazygit"
   block:
   - name: Get latest Lazygit release version
-    get_url:
+    uri:
       url: "https://api.github.com/repos/jesseduffield/lazygit/releases/latest"
-      dest: "/tmp/lazygit_release.json"
-    
+      return_content: true
+    register: lazygit_release
+
   - name: Extract Lazygit version from release JSON
     set_fact:
-      lazygit_version: "{{ lookup('file', '/tmp/lazygit_release.json') | from_json | json_query('tag_name') | regex_replace('^v', '') }}"
-    
+      lazygit_version: "{{ lazygit_release.json.tag_name | regex_replace('^v', '') }}"
+
   - name: Download Lazygit release
     get_url:
-      url: "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_{{ lazygit_version }}_Linux_x86_64.tar.gz"
+      url: "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_{{ lazygit_version }}_linux_x86_64.tar.gz"
       dest: "/tmp/lazygit.tar.gz"
-    
+
   - name: Extract Lazygit archive
-    command: tar xf /tmp/lazygit.tar.gz lazygit
-    
+    unarchive:
+      src: /tmp/lazygit.tar.gz
+      dest: /tmp
+      include: ["lazygit"]
+
   - name: Install Lazygit
     become: true
-    command: install lazygit /usr/local/bin
+    command: install /tmp/lazygit /usr/local/bin
 
   - name: Remove extracted file
     file:
-      path: ./lazygit
+      path: /tmp/lazygit
       state: absent
-      
+
   tags:
     - lazygit
     - neovim

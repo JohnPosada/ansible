@@ -1,7 +1,7 @@
 - name: Install "yarn" node.js package globally.
-  community.general.npm:
-    name: "yarn"
-    global: true
-    tags:
-      - npm
-      - install
+  shell: "{{ home }}/.local/share/fnm/fnm exec --using=default npm install -g yarn"
+  args:
+    executable: /bin/bash
+  tags:
+    - npm
+    - install

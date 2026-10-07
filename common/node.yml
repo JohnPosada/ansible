@@ -8,11 +8,11 @@
 
   - name: "Execute fnm installation script"
     shell: |
-      /tmp/fnm_install.sh
-      $HOME/.local/share/fnm/fnm install lts/hydrogen
-      $HOME/.local/share/fnm/fnm default lts/hydrogen
+      /tmp/fnm_install.sh --skip-shell
+      $HOME/.local/share/fnm/fnm install --lts
+      $HOME/.local/share/fnm/fnm default lts-latest
     args:
-      executable: /bin/zsh
+      executable: /bin/bash
   tags:
     - node
     - install

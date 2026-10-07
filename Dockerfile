@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV USER=devuser
@@ -21,8 +21,7 @@ RUN useradd -m -s /bin/zsh ${USER} && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /
 # switch to non-root user
 USER ${USER}
 
-RUN mkdir /home/${USER}/ansible \
-  && python3 -m pip install github3.py
+RUN mkdir /home/${USER}/ansible
 
 # Set the working directory
 WORKDIR /home/${USER}/ansible

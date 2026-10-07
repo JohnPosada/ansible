@@ -1,15 +1,14 @@
 - name: install bob for neovim versioning
   block:
   - name: get latest {{repo}} tag
-    community.general.github_release:
-      user: "{{author}}"
-      repo: "{{repo}}"
-      action: latest_release
+    uri:
+      url: "https://api.github.com/repos/{{author}}/{{repo}}/releases/latest"
+      return_content: true
     register: bob_release
 
   - name: Unarchive {{repo}}
     unarchive:
-      src: "{{download_url}}/{{ bob_release['tag'] }}/{{prefix}}.{{extension}} "
+      src: "{{download_url}}/{{ bob_release.json.tag_name }}/{{prefix}}.{{extension}}"
       dest: "/tmp"
       remote_src: true
 

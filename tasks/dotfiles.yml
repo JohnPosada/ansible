@@ -8,7 +8,7 @@
 
     - name: "delete conflicting files"
       shell: |
-        find ~ -type f \( -name ".zshrc" -o -name ".profile" -o -name ".bashrc" \) -exec rm -f {} \;
+        find  ~ -type f  \( -name ".zshrc" -o -name ".profile" -o -name ".bashrc" \) -maxdepth 1 -exec rm -f {} \;
       args:
         executable: /bin/bash
 

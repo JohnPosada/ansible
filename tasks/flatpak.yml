@@ -7,48 +7,27 @@
       state: present
 
   - name: "Add Flathub remote repository"
-    shell: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-  - name: "Install slack client"
-    become: true
-    flatpak:
-      name: https://dl.flathub.org/repo/appstream/com.slack.Slack.flatpakref
+    community.general.flatpak_remote:
+      name: flathub
+      flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
       method: user
       state: present
 
-  - name: "Install dbeaver client"
-    become: true
-    flatpak:
-      name: https://dl.flathub.org/repo/appstream/io.dbeaver.DBeaverCommunity.flatpakref
-      method: user
-      state: present
-  
-  - name: "Install edge"
-    become: true
-    flatpak:
-      name: https://dl.flathub.org/repo/appstream/com.microsoft.Edge.flatpakref
-      method: user
-      state: present
-  
-  - name: "Install spotify client"
-    become: true
-    flatpak:
-      name: https://dl.flathub.org/repo/appstream/com.spotify.Client.flatpakref
+  - name: "Install flatpak apps"
+    community.general.flatpak:
+      name: "{{ flatpak_apps }}"
+      remote: flathub
       method: user
       state: present
 
-
-  - name: "Install obs studio"
-    become: true
-    flatpak:
-      name: https://dl.flathub.org/repo/appstream/com.obsproject.Studio.flatpakref
-      method: user
-      state: present
-  
+  vars:
+    flatpak_apps:
+      - com.slack.Slack
+      - io.dbeaver.DBeaverCommunity
+      - com.microsoft.Edge
+      - com.spotify.Client
+      - com.obsproject.Studio
 
   tags:
     - flatpak
     - install
-
-
-

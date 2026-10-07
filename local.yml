@@ -1,10 +1,24 @@
 - hosts: localhost
   vars:
     deb_architecture: { "aarch64": "arm64", "x86_64": "amd64" }
-    home: "{{ ansible_env.HOME }}"
+    home: "{{ lookup('env', 'HOME') }}"
     user: "{{ lookup('env', 'USER') }}"
     bin: "{{ home }}/.local/bin"
     zsh_custom: "{{ home }}/.oh-my-zsh/custom"
+    git_default_profile: personal
+    git_profiles:
+      personal:
+        name: JohnPosada
+        email: johnposada2000@gmail.com
+        github_user: JohnPosada
+      work:
+        name: JohnPosada-arago
+        email: 197618135+JohnPosada-arago@users.noreply.github.com
+        github_user: JohnPosada-arago
+        signingkey: 057B577BE58D0988
+        dirs:
+          - "~/arago/"
+          - "~/CFdocgenerator/"
   pre_tasks:
     - name: Update Apt
       become: true
@@ -34,5 +48,6 @@
     - import_tasks: tasks/npm-packages.yml
     - import_tasks: tasks/zsh.yml
     - import_tasks: common/oh-my-zsh.yml
+    - import_tasks: tasks/git.yml
     - import_tasks: tasks/dotfiles.yml
     - import_tasks: tasks/claude.yml

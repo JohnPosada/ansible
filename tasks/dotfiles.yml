@@ -11,6 +11,8 @@
         repo: "https://github.com/JohnPosada/dotfiles.git"
         dest: "{{ dotfiles_dir }}"
         update: false
+      environment:
+        GIT_TERMINAL_PROMPT: "0"
 
     - name: "Backup files that would conflict with stow"
       shell: |
@@ -49,6 +51,7 @@
       - autostart
       - bash
       - kitty
+      - atuin
 
   tags:
     - dotfiles

@@ -19,7 +19,7 @@
       depth: 1
 
   - name: Run fzf installation script
-    shell: "{{ ansible_env.HOME }}/.fzf/install --all"
+    shell: "{{ ansible_env.HOME }}/.fzf/install --all --no-update-rc"
     args:
       executable: /bin/bash
 

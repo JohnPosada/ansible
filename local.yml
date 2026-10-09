@@ -47,6 +47,7 @@
     - import_tasks: tasks/kitty.yml
     - import_tasks: tasks/npm-packages.yml
     - import_tasks: tasks/zsh.yml
+    - import_tasks: tasks/atuin.yml
     - import_tasks: common/oh-my-zsh.yml
     - import_tasks: tasks/git.yml
     - import_tasks: tasks/dotfiles.yml

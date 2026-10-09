@@ -1,0 +1,24 @@
+- name: "Install atuin (synced shell history)"
+  block:
+  - name: Get latest atuin release version
+    uri:
+      url: "https://api.github.com/repos/atuinsh/atuin/releases/latest"
+      return_content: true
+    register: atuin_release
+
+  - name: Download and extract atuin
+    unarchive:
+      src: "https://github.com/atuinsh/atuin/releases/download/{{ atuin_release.json.tag_name }}/atuin-{{ ansible_architecture }}-unknown-linux-gnu.tar.gz"
+      dest: /tmp
+      remote_src: true
+
+  - name: Install atuin binary
+    copy:
+      src: "/tmp/atuin-{{ ansible_architecture }}-unknown-linux-gnu/atuin"
+      dest: "{{ bin }}/atuin"
+      mode: "0755"
+
+  tags:
+    - atuin
+    - terminal
+    - install

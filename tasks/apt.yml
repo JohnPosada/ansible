@@ -16,6 +16,7 @@
           "direnv",
           "feh",
           "stow",
+          "rsync",
           "flameshot",
           "apt-show-versions",
           "git-extras",

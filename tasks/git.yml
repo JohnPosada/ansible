@@ -87,6 +87,7 @@
     loop: "{{ git_profiles | dict2items }}"
     register: signing_upload
     changed_when: signing_upload.stdout == "ADDED"
+    when: git_upload_signing_keys | default(true) | bool
 
   - name: "Signing keys that still need GitHub access"
     debug:
@@ -99,7 +100,7 @@
     loop: "{{ signing_upload.results }}"
     loop_control:
       label: "{{ item.item.key }}"
-    when: item.stdout in ["NO_SESSION", "NO_SCOPE", "FAILED"]
+    when: item.stdout | default("") in ["NO_SESSION", "NO_SCOPE", "FAILED"]
 
   vars:
     signing_host: "{{ lookup('pipe', 'hostname') }}"

@@ -64,7 +64,8 @@ ansible-playbook -K --tags <tag> local.yml
 | `node` | fnm y Node LTS |
 | `npm` | paquetes npm globales (yarn) |
 | `terminal` | kitty, zsh, oh-my-zsh, atuin y dotfiles |
-| `kitty`, `zsh`, `oh-my-zsh`, `atuin` | cada uno por separado |
+| `kitty` | kitty como terminal predeterminada: Super+T en COSMIC, `mimeapps.list` y `x-terminal-emulator` |
+| `zsh`, `oh-my-zsh`, `atuin` | cada uno por separado |
 | `dotfiles` | clona `dotfiles` y crea los enlaces con stow; incluye `gh` y `git` |
 | `git` | perfiles de git, claves de firma y `gh` |
 | `gh` | solo GitHub CLI |

@@ -13,6 +13,86 @@
     args:
       executable: /bin/bash
 
+  - name: "Create applications directory"
+    file:
+      path: "{{ home }}/.local/share/applications"
+      state: directory
+      mode: "0755"
+
+  # The installer doesn't register kitty with the desktop, so it never shows up
+  # as a terminal choice. Absolute paths: ~/.local/bin may not be in the
+  # session PATH.
+  - name: "Install kitty desktop entries"
+    shell: |
+      sed -e "s|^Icon=kitty|Icon={{ kitty_app }}/share/icons/hicolor/256x256/apps/kitty.png|" \
+          -e "s|^Exec=kitty|Exec={{ kitty_app }}/bin/kitty|" \
+          "{{ kitty_app }}/share/applications/{{ item }}" > "{{ home }}/.local/share/applications/{{ item }}.new"
+      if cmp -s "{{ home }}/.local/share/applications/{{ item }}.new" "{{ home }}/.local/share/applications/{{ item }}"; then
+        rm "{{ home }}/.local/share/applications/{{ item }}.new"
+      else
+        mv "{{ home }}/.local/share/applications/{{ item }}.new" "{{ home }}/.local/share/applications/{{ item }}"
+        echo changed
+      fi
+    args:
+      executable: /bin/bash
+    loop:
+      - kitty.desktop
+      - kitty-open.desktop
+    register: kitty_desktop
+    changed_when: kitty_desktop.stdout == "changed"
+
+  - name: "Make kitty the default terminal (mimeapps.list)"
+    community.general.ini_file:
+      path: "{{ home }}/.config/mimeapps.list"
+      section: Default Applications
+      option: "{{ item }}"
+      value: kitty.desktop
+      no_extra_spaces: true
+      mode: "0644"
+    loop:
+      - x-scheme-handler/terminal
+      - application/x-terminal-emulator
+
+  - name: "Make kitty the default terminal (xdg-terminal-exec)"
+    copy:
+      dest: "{{ home }}/.config/xdg-terminals.list"
+      content: "kitty.desktop\n"
+      mode: "0644"
+
+  # COSMIC's Super+T reads this file, not mimeapps.list
+  - name: "Create COSMIC shortcuts directory"
+    file:
+      path: "{{ cosmic_shortcuts }}"
+      state: directory
+      mode: "0755"
+
+  - name: "Create COSMIC system actions file"
+    copy:
+      dest: "{{ cosmic_shortcuts }}/system_actions"
+      content: "{\n}\n"
+      force: false
+      mode: "0644"
+
+  - name: "Open kitty with Super+T in COSMIC"
+    lineinfile:
+      path: "{{ cosmic_shortcuts }}/system_actions"
+      regexp: '^\s*Terminal:'
+      line: '    Terminal: "{{ kitty_app }}/bin/kitty",'
+      insertafter: '^\{'
+
+  - name: "Register kitty as x-terminal-emulator"
+    become: true
+    community.general.alternatives:
+      name: x-terminal-emulator
+      link: /usr/bin/x-terminal-emulator
+      path: "{{ kitty_app }}/bin/kitty"
+      priority: 60
+      state: selected
+
+  vars:
+    kitty_app: "{{ home }}/.local/kitty.app"
+    cosmic_shortcuts: "{{ home }}/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1"
+
   tags:
     - kitty
     - terminal

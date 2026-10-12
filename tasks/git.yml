@@ -21,6 +21,8 @@
         	gpgsign = {{ 'true' if item.value.signingkey is defined else 'false' }}
         [credential "https://github.com"]
         	username = {{ item.value.github_user }}
+        	helper =
+        	helper = "!f() { [ \"$1\" = get ] || exit 0; t=$(gh auth token --hostname github.com --user {{ item.value.github_user }} 2>/dev/null) || exit 0; echo username={{ item.value.github_user }}; echo password=$t; }; f"
     loop: "{{ git_profiles | dict2items }}"
 
   - name: "Write git profiles selector"

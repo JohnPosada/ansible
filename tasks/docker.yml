@@ -37,6 +37,23 @@
       architectures: "{{ deb_architecture[ansible_architecture] }}"
       signed_by: /etc/apt/keyrings/docker.asc
 
+  # Ubuntu's packages conflict with Docker's; images and volumes in
+  # /var/lib/docker are kept
+  - name: Remove conflicting Docker packages from Ubuntu
+    become: true
+    apt:
+      name:
+        [
+          "docker.io",
+          "docker-doc",
+          "docker-compose",
+          "docker-compose-v2",
+          "podman-docker",
+          "containerd",
+          "runc",
+        ]
+      state: absent
+
   - name: Install Docker packages and plugins
     become: true
     apt:

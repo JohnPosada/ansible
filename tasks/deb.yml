@@ -7,6 +7,14 @@
       dest: "/etc/apt/keyrings/google-chrome.asc"
       mode: "0644"
 
+  # Left behind by Chrome's own .deb; apt fails on two entries for the same URI
+  # with different keys
+  - name: "Remove legacy Google Chrome repository entry"
+    become: true
+    file:
+      path: /etc/apt/sources.list.d/google-chrome.list
+      state: absent
+
   - name: "Add Google Chrome repository"
     become: true
     deb822_repository:

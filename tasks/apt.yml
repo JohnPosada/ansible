@@ -17,6 +17,7 @@
           "feh",
           "stow",
           "rsync",
+          "openssh-client",
           "flameshot",
           "apt-show-versions",
           "git-extras",

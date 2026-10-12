@@ -6,6 +6,21 @@
       state: directory
       mode: "0755"
 
+  - name: "Create ssh directory"
+    file:
+      path: "{{ home }}/.ssh"
+      state: directory
+      mode: "0700"
+
+  - name: "Generate one SSH signing key per profile"
+    command: >-
+      ssh-keygen -q -t ed25519 -N ""
+      -C "{{ item.value.github_user }} signing {{ signing_host }}"
+      -f {{ home }}/.ssh/id_ed25519_signing_{{ item.key }}
+    args:
+      creates: "{{ home }}/.ssh/id_ed25519_signing_{{ item.key }}"
+    loop: "{{ git_profiles | dict2items }}"
+
   - name: "Write git profile files"
     copy:
       dest: "{{ home }}/.config/git/{{ item.key }}"
@@ -14,16 +29,35 @@
         [user]
         	name = {{ item.value.name }}
         	email = {{ item.value.email }}
-        {% if item.value.signingkey is defined %}
-        	signingkey = {{ item.value.signingkey }}
-        {% endif %}
+        	signingkey = {{ home }}/.ssh/id_ed25519_signing_{{ item.key }}.pub
+        [gpg]
+        	format = ssh
+        [gpg "ssh"]
+        	allowedSignersFile = {{ home }}/.config/git/allowed_signers
         [commit]
-        	gpgsign = {{ 'true' if item.value.signingkey is defined else 'false' }}
+        	gpgsign = true
+        [tag]
+        	gpgsign = true
         [credential "https://github.com"]
         	username = {{ item.value.github_user }}
         	helper =
         	helper = "!f() { [ \"$1\" = get ] || exit 0; t=$(gh auth token --hostname github.com --user {{ item.value.github_user }} 2>/dev/null) || exit 0; echo username={{ item.value.github_user }}; echo password=$t; }; f"
     loop: "{{ git_profiles | dict2items }}"
+
+  - name: "Read signing public keys"
+    slurp:
+      src: "{{ home }}/.ssh/id_ed25519_signing_{{ item.key }}.pub"
+    loop: "{{ git_profiles | dict2items }}"
+    register: signing_pubkeys
+
+  - name: "Write allowed signers (lets git log --show-signature verify locally)"
+    copy:
+      dest: "{{ home }}/.config/git/allowed_signers"
+      mode: "0644"
+      content: |
+        {% for r in signing_pubkeys.results %}
+        {{ r.item.value.email }} {{ (r.content | b64decode).split()[:2] | join(' ') }}
+        {% endfor %}
 
   - name: "Write git profiles selector"
     copy:
@@ -39,6 +73,36 @@
         	path = {{ home }}/.config/git/{{ name }}
         {% endfor %}
         {% endfor %}
+
+  - name: "Upload signing keys to GitHub"
+    shell: |
+      pub="$(cut -d' ' -f1,2 {{ home }}/.ssh/id_ed25519_signing_{{ item.key }}.pub)"
+      GH_TOKEN="$(gh auth token --hostname github.com --user {{ item.value.github_user }} 2>/dev/null)" || { echo NO_SESSION; exit 0; }
+      export GH_TOKEN
+      keys="$(gh api user/ssh_signing_keys --paginate --jq '.[].key' 2>/dev/null)" || { echo NO_SCOPE; exit 0; }
+      if printf '%s\n' "$keys" | grep -qxF "$pub"; then echo PRESENT; exit 0; fi
+      gh ssh-key add {{ home }}/.ssh/id_ed25519_signing_{{ item.key }}.pub --type signing --title "{{ signing_host }}" >/dev/null && echo ADDED || echo FAILED
+    args:
+      executable: /bin/bash
+    loop: "{{ git_profiles | dict2items }}"
+    register: signing_upload
+    changed_when: signing_upload.stdout == "ADDED"
+
+  - name: "Signing keys that still need GitHub access"
+    debug:
+      msg: >-
+        {{ item.item.value.github_user }}: {{ item.stdout }}. Commits are signed but GitHub won't show Verified
+        until the key is uploaded. Run:
+        gh auth switch -u {{ item.item.value.github_user }} &&
+        gh auth refresh -h github.com -s admin:ssh_signing_key
+        and run the playbook again with --tags git.
+    loop: "{{ signing_upload.results }}"
+    loop_control:
+      label: "{{ item.item.key }}"
+    when: item.stdout in ["NO_SESSION", "NO_SCOPE", "FAILED"]
+
+  vars:
+    signing_host: "{{ lookup('pipe', 'hostname') }}"
 
   tags:
     - git

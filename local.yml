@@ -15,7 +15,6 @@
         name: JohnPosada-arago
         email: 197618135+JohnPosada-arago@users.noreply.github.com
         github_user: JohnPosada-arago
-        signingkey: 057B577BE58D0988
         dirs:
           - "~/arago/"
           - "~/CFdocgenerator/"

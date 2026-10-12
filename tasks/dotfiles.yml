@@ -6,13 +6,40 @@
         name: stow
         state: present
 
+    - name: "Check if dotfiles are already cloned"
+      stat:
+        path: "{{ dotfiles_dir }}/.git"
+      register: dotfiles_repo
+
+    - name: "Check GitHub login (dotfiles repo is private)"
+      command: gh auth token --hostname github.com --user {{ dotfiles_github_user }}
+      register: gh_login
+      failed_when: false
+      changed_when: false
+      no_log: true
+      when: not dotfiles_repo.stat.exists
+
+    - name: "Stop if not logged in to GitHub"
+      fail:
+        msg: |
+          The dotfiles repo is private and gh has no session for {{ dotfiles_github_user }}.
+          Run this, then run the playbook again:
+            gh auth login --hostname github.com --git-protocol https --web
+      when: not dotfiles_repo.stat.exists and gh_login.rc != 0
+
     - name: "Clone dotfiles repository"
       git:
-        repo: "https://github.com/JohnPosada/dotfiles.git"
+        repo: "https://{{ dotfiles_github_user }}@github.com/JohnPosada/dotfiles.git"
         dest: "{{ dotfiles_dir }}"
         update: false
       environment:
         GIT_TERMINAL_PROMPT: "0"
+        GIT_CONFIG_COUNT: "2"
+        GIT_CONFIG_KEY_0: credential.https://github.com.helper
+        GIT_CONFIG_VALUE_0: ""
+        GIT_CONFIG_KEY_1: credential.https://github.com.helper
+        GIT_CONFIG_VALUE_1: "!gh auth git-credential"
+      when: not dotfiles_repo.stat.exists
 
     - name: "Backup files that would conflict with stow"
       shell: |
@@ -43,6 +70,7 @@
 
   vars:
     dotfiles_dir: "{{ home }}/dotfiles"
+    dotfiles_github_user: "{{ git_profiles[git_default_profile].github_user }}"
     dotfiles_backup: "{{ home }}/.dotfiles-backup/{{ ansible_date_time.iso8601_basic_short }}"
     dotfiles:
       - gitconfig

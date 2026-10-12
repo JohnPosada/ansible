@@ -54,7 +54,7 @@ ansible-playbook -K --tags <tag> local.yml
 | Tag | Qué instala o configura |
 |---|---|
 | `install` | todo (igual que sin tags) |
-| `apt` | paquetes del sistema (btop, ripgrep, fd, bat, tmux, copyq, flameshot…) |
+| `apt` | paquetes del sistema (btop, ripgrep, fd, bat, ranger, tmux, copyq, flameshot…) |
 | `deb` | Google Chrome (repo apt) y Discord |
 | `flatpak` | Slack, DBeaver, Edge, Spotify, OBS |
 | `docker` | Docker Engine y plugins, y añade tu usuario al grupo `docker` |

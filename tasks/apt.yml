@@ -7,6 +7,7 @@
         [
           "unzip",
           "tree",
+          "ranger",
           "fd-find",
           "curl",
           "ripgrep",

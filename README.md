@@ -71,6 +71,7 @@ ansible-playbook -K --tags <tag> local.yml
 | `vscode` | VS Code (repo de Microsoft); se salta en WSL, donde `code` abre el de Windows |
 | `intellij` | IntelliJ IDEA (edición unificada, básico gratis) en `~/.local/share/JetBrains/idea`, comando `idea`; se instala una vez y luego se actualiza desde el propio IDE; se salta en WSL |
 | `cf` | Cloud Foundry CLI (`cf`); renueva su clave en cada ejecución porque Cloud Foundry la extiende cada año |
+| `sapmachine` | SapMachine 17, el JDK de SAP (servidor local del SDK de Neo); queda como Java principal |
 | `fonts` | fuentes de `fonts/` |
 | `neovim` | bob y la última versión de Neovim, más lazygit |
 | `lazygit` | solo lazygit |

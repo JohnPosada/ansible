@@ -1,0 +1,40 @@
+# SAP's JDK, the one the SAP BTP Neo SDK local server runs on. It becomes the
+# system java (apt alternatives) and .zshrc's JAVA_HOME prefers it over
+# OpenJDK 17 (apt.yml), which stays installed as a fallback.
+- name: "Install SapMachine 17"
+  block:
+  - name: "Create directory for keyrings"
+    become: true
+    file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: "0755"
+
+  - name: "Download SapMachine GPG key"
+    become: true
+    get_url:
+      url: https://dist.sapmachine.io/debian/sapmachine.key
+      dest: /etc/apt/keyrings/sapmachine.asc
+      mode: "0644"
+
+  # flat repository: suite "./" and no components
+  - name: "Add SapMachine repository"
+    become: true
+    deb822_repository:
+      name: sapmachine
+      types: deb
+      uris: "https://dist.sapmachine.io/debian/{{ deb_architecture[ansible_architecture] }}/"
+      suites: "./"
+      signed_by: /etc/apt/keyrings/sapmachine.asc
+
+  - name: "Install SapMachine 17 JDK"
+    become: true
+    apt:
+      name: sapmachine-17-jdk
+      state: present
+      update_cache: true
+
+  tags:
+    - sapmachine
+    - java
+    - install

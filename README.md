@@ -45,6 +45,16 @@ ansible-playbook -K --tags git local.yml
 
 Si falta algún permiso, el playbook lo indica al final con el comando a ejecutar.
 
+## Sincronizar entre PCs
+
+`dots sync` mantiene `~/dotfiles` igual en todos los PCs, incluida la configuración de Claude Code y las memorias de engram. Sube lo que cambió en este PC, trae lo del otro y aplica lo que llegó.
+
+- Se ejecuta solo 5 minutos después de iniciar sesión y luego cada 24 horas (temporizador `dots-sync.timer`).
+- `dots sync` lo ejecuta en el momento. Úsalo antes de cambiar de PC.
+- `dots status` muestra la última sincronización, lo pendiente y la próxima ejecución automática.
+- Si los dos PCs cambiaron la misma línea, se detiene sin tocar nada, avisa con una notificación y dice cómo resolverlo.
+- Registro: `journalctl --user -u dots-sync`.
+
 ## Ejecutar solo una parte
 
 ```bash
@@ -68,7 +78,7 @@ ansible-playbook -K --tags <tag> local.yml
 | `terminal` | kitty, zsh, oh-my-zsh, atuin y dotfiles |
 | `kitty` | kitty como terminal predeterminada: Super+T en COSMIC, `mimeapps.list` y `x-terminal-emulator` |
 | `zsh`, `oh-my-zsh`, `atuin` | cada uno por separado |
-| `dotfiles` | clona `dotfiles` y crea los enlaces con stow; incluye `gh` y `git` |
+| `dotfiles` | clona `dotfiles`, crea los enlaces con stow y activa `dots sync`; incluye `gh` y `git` |
 | `git` | perfiles de git, claves de firma y `gh` |
 | `gh` | solo GitHub CLI |
 | `claude` | Claude Code, engram, graphify y la configuración guardada en `dotfiles/claude-code` |

@@ -42,6 +42,8 @@
     - import_tasks: common/node.yml
     - import_tasks: tasks/apt.yml
     - import_tasks: tasks/docker.yml
+    - import_tasks: tasks/vscode.yml
+    - import_tasks: tasks/cf.yml
     - import_tasks: tasks/flatpak.yml
     - import_tasks: tasks/kitty.yml
     - import_tasks: tasks/npm-packages.yml

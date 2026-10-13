@@ -19,6 +19,18 @@
       include: ["engram"]
       remote_src: true
 
+  - name: "Install pipx"
+    become: true
+    apt:
+      name: pipx
+      state: present
+
+  # used by the /graphify skill
+  - name: "Install graphify"
+    command: pipx install graphifyy
+    args:
+      creates: "{{ bin }}/graphify"
+
   - name: "Check for claude-code config in dotfiles"
     stat:
       path: "{{ home }}/dotfiles/claude-code/sync.sh"

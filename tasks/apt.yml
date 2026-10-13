@@ -29,6 +29,8 @@
           "git-filter-repo",
           "gimp",
           "python3-pip",
+          "pipx",
+          "openjdk-17-jdk",
         ]
       state: present
 

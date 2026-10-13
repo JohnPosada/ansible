@@ -54,10 +54,12 @@ ansible-playbook -K --tags <tag> local.yml
 | Tag | Qué instala o configura |
 |---|---|
 | `install` | todo (igual que sin tags) |
-| `apt` | paquetes del sistema (btop, ripgrep, fd, bat, ranger, tmux, copyq, flameshot…) |
+| `apt` | paquetes del sistema (btop, ripgrep, fd, bat, ranger, tmux, copyq, flameshot, Java 17, pipx…) |
 | `deb` | Google Chrome (repo apt) y Discord |
 | `flatpak` | Slack, DBeaver, Edge, Spotify, OBS |
 | `docker` | Docker Engine y plugins, y añade tu usuario al grupo `docker` |
+| `vscode` | VS Code (repo de Microsoft); se salta en WSL, donde `code` abre el de Windows |
+| `cf` | Cloud Foundry CLI (`cf`); renueva su clave en cada ejecución porque Cloud Foundry la extiende cada año |
 | `fonts` | fuentes de `fonts/` |
 | `neovim` | bob y la última versión de Neovim, más lazygit |
 | `lazygit` | solo lazygit |
@@ -69,7 +71,7 @@ ansible-playbook -K --tags <tag> local.yml
 | `dotfiles` | clona `dotfiles` y crea los enlaces con stow; incluye `gh` y `git` |
 | `git` | perfiles de git, claves de firma y `gh` |
 | `gh` | solo GitHub CLI |
-| `claude` | Claude Code, engram y la configuración guardada en `dotfiles/claude-code` |
+| `claude` | Claude Code, engram, graphify y la configuración guardada en `dotfiles/claude-code` |
 
 Para saltarte algo: `--skip-tags flatpak`.
 

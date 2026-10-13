@@ -1,0 +1,50 @@
+- name: "Install VS Code"
+  block:
+  - name: "Create directory for keyrings"
+    become: true
+    file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: "0755"
+
+  - name: "Download Microsoft GPG key"
+    become: true
+    get_url:
+      url: https://packages.microsoft.com/keys/microsoft.asc
+      dest: /etc/apt/keyrings/microsoft.asc
+      mode: "0644"
+
+  # Left behind by VS Code's own .deb; apt fails on two entries for the same
+  # URI with different keys
+  - name: "Remove legacy VS Code repository entry"
+    become: true
+    file:
+      path: /etc/apt/sources.list.d/vscode.list
+      state: absent
+
+  - name: "Add VS Code repository"
+    become: true
+    deb822_repository:
+      name: vscode
+      types: deb
+      uris: https://packages.microsoft.com/repos/code
+      suites: stable
+      components: main
+      architectures: "{{ deb_architecture[ansible_architecture] }}"
+      signed_by: /etc/apt/keyrings/microsoft.asc
+
+  - name: "Install VS Code"
+    become: true
+    apt:
+      name: code
+      state: present
+      update_cache: true
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+
+  # On WSL, `code` already opens the Windows install; a Linux copy breaks that
+  when: "'microsoft' not in ansible_kernel | lower"
+
+  tags:
+    - vscode
+    - install

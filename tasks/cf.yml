@@ -1,0 +1,45 @@
+- name: "Install Cloud Foundry CLI"
+  block:
+  - name: "Create directory for keyrings"
+    become: true
+    file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: "0755"
+
+  # force: the key gets its expiry extended in place every year; an old copy
+  # makes apt reject the repo
+  - name: "Download Cloud Foundry GPG key"
+    become: true
+    get_url:
+      url: https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key
+      dest: /etc/apt/keyrings/cloudfoundry.asc
+      mode: "0644"
+      force: true
+
+  - name: "Remove legacy Cloud Foundry repository entry"
+    become: true
+    file:
+      path: /etc/apt/sources.list.d/cloudfoundry-cli.list
+      state: absent
+
+  - name: "Add Cloud Foundry repository"
+    become: true
+    deb822_repository:
+      name: cloudfoundry-cli
+      types: deb
+      uris: https://packages.cloudfoundry.org/debian
+      suites: stable
+      components: main
+      signed_by: /etc/apt/keyrings/cloudfoundry.asc
+
+  - name: "Install cf CLI"
+    become: true
+    apt:
+      name: cf8-cli
+      state: present
+      update_cache: true
+
+  tags:
+    - cf
+    - install

@@ -70,7 +70,12 @@
         executable: /bin/bash
       loop: "{{ dotfiles }}"
 
-    # daily `dots sync`; containers have no systemd user session
+    # daily `dots sync`; needs a systemd user session (not there in containers)
+    - name: "Check for a systemd user session"
+      stat:
+        path: "/run/user/{{ ansible_user_uid }}/bus"
+      register: user_bus
+
     - name: "Enable dots sync timer"
       systemd_service:
         name: dots-sync.timer
@@ -78,7 +83,12 @@
         enabled: true
         state: started
         daemon_reload: true
-      when: ansible_service_mgr == "systemd"
+      when: user_bus.stat.exists
+
+    - name: "dots sync timer not enabled"
+      debug:
+        msg: "No systemd user session: after logging in run systemctl --user enable --now dots-sync.timer"
+      when: not user_bus.stat.exists
 
   vars:
     dotfiles_dir: "{{ home }}/dotfiles"

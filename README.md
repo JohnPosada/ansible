@@ -66,7 +66,7 @@ ansible-playbook -K --tags <tag> local.yml
 | `install` | todo (igual que sin tags) |
 | `apt` | paquetes del sistema (btop, ripgrep, fd, bat, ranger, tmux, copyq, flameshot, Java 17, pipx…) |
 | `deb` | Google Chrome (repo apt) y Discord |
-| `flatpak` | Slack, DBeaver, Edge, Spotify, OBS |
+| `flatpak` | Slack, DBeaver, Edge, Spotify, OBS, Teams (cliente no oficial Teams for Linux) |
 | `docker` | Docker Engine y plugins, y añade tu usuario al grupo `docker` |
 | `vscode` | VS Code (repo de Microsoft); se salta en WSL, donde `code` abre el de Windows |
 | `intellij` | IntelliJ IDEA (edición unificada, básico gratis) en `~/.local/share/JetBrains/idea`, comando `idea`; se instala una vez y luego se actualiza desde el propio IDE; se salta en WSL |

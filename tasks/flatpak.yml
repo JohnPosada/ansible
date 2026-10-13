@@ -27,6 +27,7 @@
       - com.microsoft.Edge
       - com.spotify.Client
       - com.obsproject.Studio
+      - com.github.IsmaelMartinez.teams_for_linux
 
   tags:
     - flatpak

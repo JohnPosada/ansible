@@ -69,6 +69,7 @@ ansible-playbook -K --tags <tag> local.yml
 | `flatpak` | Slack, DBeaver, Edge, Spotify, OBS |
 | `docker` | Docker Engine y plugins, y añade tu usuario al grupo `docker` |
 | `vscode` | VS Code (repo de Microsoft); se salta en WSL, donde `code` abre el de Windows |
+| `intellij` | IntelliJ IDEA (edición unificada, básico gratis) en `~/.local/share/JetBrains/idea`, comando `idea`; se instala una vez y luego se actualiza desde el propio IDE; se salta en WSL |
 | `cf` | Cloud Foundry CLI (`cf`); renueva su clave en cada ejecución porque Cloud Foundry la extiende cada año |
 | `fonts` | fuentes de `fonts/` |
 | `neovim` | bob y la última versión de Neovim, más lazygit |

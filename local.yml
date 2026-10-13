@@ -5,6 +5,9 @@
     user: "{{ lookup('env', 'USER') }}"
     bin: "{{ home }}/.local/bin"
     zsh_custom: "{{ home }}/.oh-my-zsh/custom"
+    # GUI apps (VS Code, IntelliJ) are skipped on WSL, where the Windows
+    # installs are used; containers on a WSL host need -e is_wsl=false
+    is_wsl: "{{ 'microsoft' in ansible_kernel | lower }}"
     git_default_profile: personal
     git_profiles:
       personal:
@@ -43,6 +46,7 @@
     - import_tasks: tasks/apt.yml
     - import_tasks: tasks/docker.yml
     - import_tasks: tasks/vscode.yml
+    - import_tasks: tasks/intellij.yml
     - import_tasks: tasks/cf.yml
     - import_tasks: tasks/flatpak.yml
     - import_tasks: tasks/kitty.yml

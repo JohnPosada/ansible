@@ -43,7 +43,7 @@
       DEBIAN_FRONTEND: noninteractive
 
   # On WSL, `code` already opens the Windows install; a Linux copy breaks that
-  when: "'microsoft' not in ansible_kernel | lower"
+  when: not (is_wsl | bool)
 
   tags:
     - vscode

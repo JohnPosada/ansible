@@ -1,0 +1,79 @@
+- name: "Check for IntelliJ IDEA"
+  stat:
+    path: "{{ home }}/.local/share/JetBrains/idea/bin/idea"
+  register: idea_installed
+  tags:
+    - intellij
+    - install
+
+- name: "Install IntelliJ IDEA"
+  block:
+  - name: "Get latest IntelliJ IDEA release"
+    uri:
+      url: "https://data.services.jetbrains.com/products/releases?code=IIU&latest=true&type=release"
+      return_content: true
+    register: idea_release
+
+  - name: "Download IntelliJ IDEA {{ idea_download.link | basename }}"
+    get_url:
+      url: "{{ idea_download.link }}"
+      dest: "/tmp/idea.tar.gz"
+      checksum: "sha256:{{ idea_download.checksumLink }}"
+
+  - name: "Create IntelliJ IDEA directory"
+    file:
+      path: "{{ idea_dir }}"
+      state: directory
+      mode: "0755"
+
+  - name: "Extract IntelliJ IDEA"
+    unarchive:
+      src: "/tmp/idea.tar.gz"
+      dest: "{{ idea_dir }}"
+      remote_src: true
+      extra_opts: ["--strip-components=1"]
+
+  - name: "Remove downloaded archive"
+    file:
+      path: "/tmp/idea.tar.gz"
+      state: absent
+
+  - name: "Link idea into {{ bin }}"
+    file:
+      src: "{{ idea_dir }}/bin/idea"
+      dest: "{{ bin }}/idea"
+      state: link
+
+  - name: "Create applications directory"
+    file:
+      path: "{{ home }}/.local/share/applications"
+      state: directory
+      mode: "0755"
+
+  - name: "Install IntelliJ IDEA desktop entry"
+    copy:
+      dest: "{{ home }}/.local/share/applications/jetbrains-idea.desktop"
+      mode: "0644"
+      content: |
+        [Desktop Entry]
+        Type=Application
+        Name=IntelliJ IDEA
+        Icon={{ idea_dir }}/bin/idea.svg
+        Exec="{{ idea_dir }}/bin/idea" %f
+        Comment=The JetBrains IDE for Java and Kotlin
+        Categories=Development;IDE;
+        Terminal=false
+        StartupWMClass=jetbrains-idea
+        StartupNotify=true
+
+  vars:
+    idea_dir: "{{ home }}/.local/share/JetBrains/idea"
+    idea_download: "{{ idea_release.json.IIU[0].downloads[ 'linuxARM64' if ansible_architecture == 'aarch64' else 'linux' ] }}"
+
+  # Installed once: the IDE updates itself afterwards (its directory is
+  # user-writable). On WSL use the Windows install.
+  when: not (is_wsl | bool) and not idea_installed.stat.exists
+
+  tags:
+    - intellij
+    - install

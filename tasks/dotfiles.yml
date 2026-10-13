@@ -60,13 +60,25 @@
       register: dotfiles_backup_result
       changed_when: dotfiles_backup_result.stdout != ""
 
+    # systemd: link the unit files, not the directory, so systemctl enable
+    # doesn't write its symlinks into the repo
     - name: "execute Stow to create symlinks"
       shell: |
-        stow {{ item }}
+        stow {{ '--no-folding' if item == 'systemd' else '' }} {{ item }}
       args:
         chdir: "{{ dotfiles_dir }}"
         executable: /bin/bash
       loop: "{{ dotfiles }}"
+
+    # daily `dots sync`; containers have no systemd user session
+    - name: "Enable dots sync timer"
+      systemd_service:
+        name: dots-sync.timer
+        scope: user
+        enabled: true
+        state: started
+        daemon_reload: true
+      when: ansible_service_mgr == "systemd"
 
   vars:
     dotfiles_dir: "{{ home }}/dotfiles"
@@ -80,6 +92,8 @@
       - bash
       - kitty
       - atuin
+      - bin
+      - systemd
 
   tags:
     - dotfiles

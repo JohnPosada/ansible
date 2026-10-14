@@ -4,8 +4,8 @@
 Like GlazeWM's alt+space: jumps to the window used before the current one
 (e.g. a floating window and the tiled one behind it), never leaving the
 workspace. COSMIC always draws floating windows above tiled ones, so when
-leaving a window that overlaps the target (i.e. a floating one), it gets
-minimized, and restored when switching back to it. With --list, only prints
+leaving a floating window that covers the target, it gets minimized, and
+restored when switching back to it. With --list, only prints
 the windows it sees.
 """
 import os
@@ -39,6 +39,9 @@ class Window:
         self.states = set()
         self.workspaces = set()
         self.geometry = None
+
+    def area(self):
+        return self.geometry[2] * self.geometry[3] if self.geometry else 0
 
     def overlaps(self, other):
         if not self.geometry or not other.geometry:
@@ -165,10 +168,16 @@ def main():
             pass
 
     manager = g[ZcosmicToplevelManagerV1.name]
-    if STATE_MINIMIZED in target.states:
+    restoring = STATE_MINIMIZED in target.states
+    if restoring:
         manager.unset_minimized(target.cosmic)
     manager.activate(target.cosmic, g[WlSeat.name])
-    if current and current.overlaps(target):
+    # Only hide the current window when it is the floating one on top. The
+    # protocol doesn't say which window floats, so take the smaller of the
+    # two overlapping ones; when restoring a hidden window, the current one
+    # is the background and stays.
+    if (current and not restoring and current.overlaps(target)
+            and current.area() < target.area()):
         manager.set_minimized(current.cosmic)
     display.roundtrip()
     display.disconnect()

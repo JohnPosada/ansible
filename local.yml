@@ -51,6 +51,7 @@
     - import_tasks: tasks/sapmachine.yml
     - import_tasks: tasks/flatpak.yml
     - import_tasks: tasks/kitty.yml
+    - import_tasks: tasks/cosmic.yml
     - import_tasks: tasks/npm-packages.yml
     - import_tasks: tasks/zsh.yml
     - import_tasks: tasks/atuin.yml

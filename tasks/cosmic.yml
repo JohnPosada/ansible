@@ -1,0 +1,119 @@
+- name: "Configure COSMIC (GlazeWM-style keys)"
+  block:
+  - name: "Install wsfocus build dependencies"
+    become: true
+    apt:
+      name: ["python3-venv", "libwayland-dev"]
+      state: present
+
+  # Alt and Super swapped, so COSMIC's Super shortcuts are on Alt
+  # (Alt+arrows, Alt+1..9, Alt+T...), like GlazeWM.
+  - name: "Create COSMIC compositor config directory"
+    file:
+      path: "{{ cosmic_config }}/com.system76.CosmicComp/v1"
+      state: directory
+      mode: "0755"
+
+  - name: "Create COSMIC keyboard config"
+    copy:
+      dest: "{{ cosmic_config }}/com.system76.CosmicComp/v1/xkb_config"
+      content: |
+        (
+            rules: "",
+            model: "pc105",
+            layout: "latam",
+            variant: "",
+            options: None,
+            repeat_delay: 600,
+            repeat_rate: 25,
+        )
+      force: false
+      mode: "0644"
+
+  - name: "Swap Alt and Super"
+    lineinfile:
+      path: "{{ cosmic_config }}/com.system76.CosmicComp/v1/xkb_config"
+      regexp: '^\s*options:'
+      line: '    options: Some("altwin:swap_alt_win"),'
+
+  # COSMIC has no per-workspace window cycling (its window switcher lists
+  # every workspace), so Alt+Space runs wsfocus: it jumps to the previous
+  # window of the current workspace, hiding a floating one that covers it.
+  - name: "Create wsfocus directories"
+    file:
+      path: "{{ item }}"
+      state: directory
+      mode: "0755"
+    loop:
+      - "{{ wsfocus_dir }}/protocols"
+      - "{{ bin }}"
+
+  - name: "Copy wsfocus"
+    copy:
+      src: cosmic/wsfocus/wsfocus.py
+      dest: "{{ wsfocus_dir }}/wsfocus.py"
+      mode: "0644"
+
+  - name: "Copy Wayland protocols used by wsfocus"
+    copy:
+      src: cosmic/wsfocus/protocols/
+      dest: "{{ wsfocus_dir }}/protocols/"
+      mode: "0644"
+    register: wsfocus_protocols
+
+  - name: "Install pywayland in the wsfocus venv"
+    pip:
+      name: pywayland
+      virtualenv: "{{ wsfocus_dir }}/venv"
+      virtualenv_command: python3 -m venv
+
+  - name: "Check wsfocus bindings"
+    stat:
+      path: "{{ wsfocus_dir }}/gen/wayland.py"
+    register: wsfocus_gen
+
+  - name: "Generate wsfocus Wayland bindings"
+    shell: |
+      rm -rf gen
+      venv/bin/python -m pywayland.scanner -o gen \
+        -i /usr/share/wayland/wayland.xml protocols/*.xml
+    args:
+      chdir: "{{ wsfocus_dir }}"
+      executable: /bin/bash
+    when: wsfocus_protocols.changed or not wsfocus_gen.stat.exists
+
+  - name: "Install wsfocus command"
+    copy:
+      dest: "{{ bin }}/wsfocus"
+      content: |
+        #!/bin/sh
+        exec {{ wsfocus_dir }}/venv/bin/python {{ wsfocus_dir }}/wsfocus.py "$@"
+      mode: "0755"
+
+  - name: "Create COSMIC shortcuts directory"
+    file:
+      path: "{{ cosmic_config }}/com.system76.CosmicSettings.Shortcuts/v1"
+      state: directory
+      mode: "0755"
+
+  # Keys are named as COSMIC sees them, before the swap: Super is the
+  # physical Alt.
+  - name: "Add custom COSMIC shortcuts"
+    copy:
+      dest: "{{ cosmic_config }}/com.system76.CosmicSettings.Shortcuts/v1/custom"
+      content: |
+        {
+            (modifiers: [Super], key: "space"): Spawn("{{ bin }}/wsfocus"),
+            (modifiers: [Super, Shift], key: "space"): ToggleWindowFloating,
+            (modifiers: [Ctrl], key: "ntilde"): Spawn("copyq toggle"),
+        }
+      mode: "0644"
+
+  vars:
+    cosmic_config: "{{ home }}/.config/cosmic"
+    wsfocus_dir: "{{ home }}/.local/share/wsfocus"
+
+  when: not is_wsl
+  tags:
+    - cosmic
+    - install

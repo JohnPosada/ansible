@@ -66,7 +66,7 @@ ansible-playbook -K --tags <tag> local.yml
 | `install` | todo (igual que sin tags) |
 | `apt` | paquetes del sistema (btop, ripgrep, fd, bat, ranger, tmux, copyq, flameshot, Java 17, Maven, pipx…) |
 | `deb` | Google Chrome (repo apt) y Discord |
-| `flatpak` | Slack, DBeaver, Edge, Spotify, OBS, Teams (cliente no oficial Teams for Linux) |
+| `flatpak` | Slack, DBeaver, Edge, Spotify, OBS, Teams (cliente no oficial Teams for Linux), WhatsApp (ZapZap) |
 | `docker` | Docker Engine y plugins, y añade tu usuario al grupo `docker` |
 | `vscode` | VS Code (repo de Microsoft); se salta en WSL, donde `code` abre el de Windows |
 | `intellij` | IntelliJ IDEA (edición unificada, básico gratis) en `~/.local/share/JetBrains/idea`, comando `idea`; se instala una vez y luego se actualiza desde el propio IDE; se salta en WSL |
@@ -79,6 +79,7 @@ ansible-playbook -K --tags <tag> local.yml
 | `npm` | paquetes npm globales (yarn) |
 | `terminal` | kitty, zsh, oh-my-zsh, atuin y dotfiles |
 | `kitty` | kitty como terminal predeterminada: Super+T en COSMIC, `mimeapps.list` y `x-terminal-emulator` |
+| `cosmic` | atajos estilo GlazeWM: Alt y Super intercambiados, Alt+Space alterna con la ventana anterior del workspace (`wsfocus`, oculta la flotante que la tapa), Alt+Shift+Space flotante, Ctrl+Ñ abre CopyQ |
 | `zsh`, `oh-my-zsh`, `atuin` | cada uno por separado |
 | `dotfiles` | clona `dotfiles`, crea los enlaces con stow y activa `dots sync`; incluye `gh` y `git` |
 | `git` | perfiles de git, claves de firma y `gh` |
